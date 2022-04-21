@@ -1,11 +1,14 @@
 import Nav from '../components/Nav';
 import { useState } from 'react';
 import { useCookies } from 'react-cookie';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const Onboarding = () => {
   const [cookies, setCookie, removeCookie] = useCookies(['user']);
 
   const [formData, setFormData] = useState({
+    user_id: cookies.UserId,
     first_name: '',
     dob_day: '',
     dob_month: '',
@@ -17,6 +20,8 @@ const Onboarding = () => {
     about: '',
     matches: [],
   });
+
+  let navigate = useNavigate();
 
   const handleChange = (e) => {
     console.log('e:', e);
@@ -34,7 +39,23 @@ const Onboarding = () => {
 
   console.log(formData);
 
-  const handleSubmit = (e) => {};
+  const handleSubmit = async (e) => {
+    console.log('submitted');
+
+    // need to do this to stop the form from reloading... i don't understand this
+    e.preventDefault();
+
+    try {
+      const response = await axios.put('http://localhost:8000/user', {
+        formData,
+      });
+      const success = response.status == 200;
+      console.log('success' + success);
+      if (success) navigate('../dashboard');
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   return (
     <>
@@ -191,7 +212,9 @@ const Onboarding = () => {
               required={true}
             />
             <div className='photo-container'>
-              <img src={formData.url} alt='profile pic preview' />
+              {formData.url && (
+                <img src={formData.url} alt='profile pic preview' />
+              )}
             </div>
           </section>
         </form>
