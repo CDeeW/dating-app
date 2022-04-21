@@ -1,8 +1,34 @@
 import TinderCard from 'react-tinder-card';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import ChatContainer from '../components/ChatContainer';
+import axios from 'axios';
+import { useCookies } from 'react-cookie';
 
 const Dashboard = () => {
+  const [user, setUser] = useState(null);
+  // don't really understand why you pass in '[user]'
+  const [cookies, setCookie, removeCookie] = useCookies('[user]');
+
+  const userId = cookies.UserId;
+
+  const getUser = async () => {
+    try {
+      const response = await axios.get('http://localhost:8000/user', {
+        params: { userId },
+      });
+      setUser(response.data);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  // anytime the user changes, then we call the getUser function
+  useEffect(() => {
+    getUser();
+  }, []);
+
+  console.log('user:' + JSON.stringify(user));
+
   const characters = [
     {
       name: 'Random Lady',
@@ -39,7 +65,7 @@ const Dashboard = () => {
 
   return (
     <div className='dashboard'>
-      <ChatContainer />
+      <ChatContainer user={user} />
       <div className='swiper-container'>
         <div className='card-container'>
           {characters.map((character) => (
