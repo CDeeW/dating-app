@@ -22,7 +22,7 @@ const Dashboard = () => {
     },
     {
       name: 'Dinesh Chugtai',
-      url: 'https://imgur.com/oPj4A8u.jpg',
+      url: 'https://media.vanityfair.com/photos/620aa878b1aef5780ef1d04e/master/pass/1340176590',
     },
   ];
 

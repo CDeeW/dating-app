@@ -35,8 +35,7 @@ const AuthModal = ({ setShowModal, isSignUp }) => {
       );
 
       // Setting the cookie for the email to the response.
-      setCookie('Email', response.data.email);
-      setCookie('UserId', response.data.userId);
+
       setCookie('AuthToken', response.data.token);
 
       const success = response.status === 201;
