@@ -76,28 +76,35 @@ app.post('/login', async (req, res) => {
       user.hashed_password
     );
 
+    console.log('user' + JSON.stringify(user));
+
     // she did email but i think it might have to be sanitizedEmail
 
     console.log('correct password:' + correctPassword);
     if (user && correctPassword) {
-      console.log('success');
+      console.log('log in success');
       const token = jwt.sign(user, email, {
         expiresIn: 60 * 24,
       });
+      //console.log('backend' + token);
       res.status(201).send({ token, userId: user.user_id });
+    } else {
+      res.status(400).send('Invalid credentials');
+      console.log('fail');
     }
-    res.status(400).send('Invalid credentials');
-    console.log('fail');
   } catch (err) {
     console.log(err);
   }
 });
 
 app.get('/user', async (req, res) => {
+  console.log('backend get user');
   const client = new MongoClient(uri);
 
   // dont really know the difference between req.params and req.body
+  console.log('query:' + JSON.stringify(req.query));
   const userId = req.query.userId;
+  console.log('in backend: ' + userId);
 
   try {
     await client.connect();
@@ -106,7 +113,6 @@ app.get('/user', async (req, res) => {
     const query = { user_id: userId };
     const user = await users.findOne(query);
 
-    //console.log(user);
     res.send(user);
   } finally {
     await client.close();

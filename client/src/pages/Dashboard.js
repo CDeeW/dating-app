@@ -7,7 +7,7 @@ import { useCookies } from 'react-cookie';
 const Dashboard = () => {
   const [user, setUser] = useState(null);
   // don't really understand why you pass in '[user]'
-  const [cookies, setCookie, removeCookie] = useCookies('[user]');
+  const [cookies, setCookie, removeCookie] = useCookies(['user']);
 
   const userId = cookies.UserId;
 
@@ -17,17 +17,16 @@ const Dashboard = () => {
         params: { userId },
       });
       setUser(response.data);
-    } catch (err) {
-      console.log(err);
+    } catch (error) {
+      console.log(error);
     }
   };
 
   // anytime the user changes, then we call the getUser function
   useEffect(() => {
+    console.log('useEffect called');
     getUser();
   }, []);
-
-  console.log('user:' + JSON.stringify(user));
 
   const characters = [
     {
@@ -63,32 +62,38 @@ const Dashboard = () => {
     console.log(name + ' left the screen!');
   };
 
+  console.log('user' + JSON.stringify(user));
+
   return (
-    <div className='dashboard'>
-      <ChatContainer user={user} />
-      <div className='swiper-container'>
-        <div className='card-container'>
-          {characters.map((character) => (
-            <TinderCard
-              className='swipe'
-              key={character.name}
-              onSwipe={(dir) => swiped(dir, character.name)}
-              onCardLeftScreen={() => outOfFrame(character.name)}
-            >
-              <div
-                style={{ backgroundImage: 'url(' + character.url + ')' }}
-                className='card'
-              >
-                <h3>{character.name}</h3>
+    <>
+      {user && (
+        <div className='dashboard'>
+          <ChatContainer user={user} />
+          <div className='swiper-container'>
+            <div className='card-container'>
+              {characters.map((character) => (
+                <TinderCard
+                  className='swipe'
+                  key={character.name}
+                  onSwipe={(dir) => swiped(dir, character.name)}
+                  onCardLeftScreen={() => outOfFrame(character.name)}
+                >
+                  <div
+                    style={{ backgroundImage: 'url(' + character.url + ')' }}
+                    className='card'
+                  >
+                    <h3>{character.name}</h3>
+                  </div>
+                </TinderCard>
+              ))}
+              <div className='swipe-info'>
+                {lastDirection ? <p>you swiped {lastDirection}</p> : <p />}
               </div>
-            </TinderCard>
-          ))}
-          <div className='swipe-info'>
-            {lastDirection ? <p>you swiped {lastDirection}</p> : <p />}
+            </div>
           </div>
         </div>
-      </div>
-    </div>
+      )}
+    </>
   );
 };
 

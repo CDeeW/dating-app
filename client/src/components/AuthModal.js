@@ -26,6 +26,7 @@ const AuthModal = ({ setShowModal, isSignUp }) => {
         setError('Passwords need to match');
         return;
       }
+      console.log('login stage');
       const response = await axios.post(
         `http://localhost:8000/${isSignUp ? 'signup' : 'login'}`,
         {
@@ -33,6 +34,10 @@ const AuthModal = ({ setShowModal, isSignUp }) => {
           password,
         }
       );
+      console.log('front end : ' + JSON.stringify(response));
+
+      console.log('token: ' + response.data.token);
+      console.log('userId: ' + response.data.userId);
 
       // Setting the cookie for the email to the response.
 
@@ -43,6 +48,7 @@ const AuthModal = ({ setShowModal, isSignUp }) => {
 
       if (success && isSignUp) navigate('./onboarding');
       if (success && !isSignUp) navigate('./dashboard');
+      window.location.reload();
     } catch (error) {
       console.log(error);
     }

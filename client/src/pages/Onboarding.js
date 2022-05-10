@@ -50,7 +50,8 @@ const Onboarding = () => {
         formData,
       });
       const success = response.status == 200;
-      console.log('success' + success);
+      console.log('success: ' + success);
+      console.log('response: ' + response);
       if (success) navigate('../dashboard');
     } catch (err) {
       console.log(err);
