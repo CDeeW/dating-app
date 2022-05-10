@@ -6,6 +6,8 @@ import { useCookies } from 'react-cookie';
 
 const Dashboard = () => {
   const [user, setUser] = useState(null);
+  const [genderedUsers, setGenderedUsers] = useState(null);
+
   // don't really understand why you pass in '[user]'
   const [cookies, setCookie, removeCookie] = useCookies(['user']);
 
@@ -22,11 +24,29 @@ const Dashboard = () => {
     }
   };
 
+  const getGenderedUsers = async () => {
+    try {
+      const response = await axios.get('http://localhost:8000/gendered-users', {
+        params: { gender: user?.gender_interest },
+      });
+      setGenderedUsers(response.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   // anytime the user changes, then we call the getUser function
   useEffect(() => {
-    console.log('useEffect called');
     getUser();
   }, []);
+
+  useEffect(() => {
+    if (user) {
+      getGenderedUsers();
+    }
+  }, [user]);
+
+  console.log('genderedUsers: ' + JSON.stringify(genderedUsers));
 
   const characters = [
     {
@@ -66,23 +86,25 @@ const Dashboard = () => {
 
   return (
     <>
-      {user && (
+      {user && genderedUsers && (
         <div className='dashboard'>
           <ChatContainer user={user} />
           <div className='swiper-container'>
             <div className='card-container'>
-              {characters.map((character) => (
+              {genderedUsers?.map((gendered_user) => (
                 <TinderCard
                   className='swipe'
-                  key={character.name}
-                  onSwipe={(dir) => swiped(dir, character.name)}
-                  onCardLeftScreen={() => outOfFrame(character.name)}
+                  key={gendered_user.first_name}
+                  onSwipe={(dir) => swiped(dir, gendered_user.first_name)}
+                  onCardLeftScreen={() => outOfFrame(gendered_user.first_name)}
                 >
                   <div
-                    style={{ backgroundImage: 'url(' + character.url + ')' }}
+                    style={{
+                      backgroundImage: 'url(' + gendered_user.url + ')',
+                    }}
                     className='card'
                   >
-                    <h3>{character.name}</h3>
+                    <h3>{gendered_user.first_name}</h3>
                   </div>
                 </TinderCard>
               ))}
