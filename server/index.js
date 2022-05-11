@@ -177,4 +177,29 @@ app.put('/user', async (req, res) => {
   }
 });
 
+app.put('/addmatch', async (req, res) => {
+  const client = new MongoClient(uri);
+  const { userId, matchedUserId } = req.body;
+
+  try {
+    // connect to the user database
+    await client.connect();
+    const database = client.db('app-data');
+    const users = database.collection('users');
+
+    const query = { user_id: userId };
+
+    // dont really get the updateDocument bit here
+    const updateDocument = {
+      $push: { matches: { userId: matchedUserId } },
+    };
+
+    const user = await users.updateOne(query, updateDocument);
+    console.log('user updated one:' + user);
+    res.send(user);
+  } finally {
+    await client.close();
+  }
+});
+
 app.listen(PORT, () => console.log('Server running on Port: ' + PORT));

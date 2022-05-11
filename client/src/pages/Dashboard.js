@@ -7,6 +7,7 @@ import { useCookies } from 'react-cookie';
 const Dashboard = () => {
   const [user, setUser] = useState(null);
   const [genderedUsers, setGenderedUsers] = useState(null);
+  const [lastDirection, setLastDirection] = useState();
 
   // don't really understand why you pass in '[user]'
   const [cookies, setCookie, removeCookie] = useCookies(['user']);
@@ -46,43 +47,32 @@ const Dashboard = () => {
     }
   }, [user]);
 
-  console.log('genderedUsers: ' + JSON.stringify(genderedUsers));
+  // how do we know this is an async function?
+  // because we are adding to the database using axios which requires an await.
+  const updateMatches = async (matchedUserId) => {
+    try {
+      await axios.put('http://localhost:8000/addmatch', {
+        userId,
+        matchedUserId,
+      });
+      getUser();
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
-  const characters = [
-    {
-      name: 'Random Lady',
-      url: 'https://cdn.pixabay.com/photo/2021/02/27/15/44/portrait-6054910_1280.jpg',
-    },
-    {
-      name: 'Baby Monkey',
-      url: 'https://i.etsystatic.com/17408318/r/il/0eacfe/2181524469/il_fullxfull.2181524469_m5ug.jpg',
-    },
-    {
-      name: 'Monica Hall',
-      url: 'https://m.media-amazon.com/images/M/MV5BOTAwNTMwMzE5OF5BMl5BanBnXkFtZTgwMjYwNzI2MjE@._V1_UY1200_CR68,0,630,1200_AL_.jpg',
-    },
-    {
-      name: 'Jared Dunn',
-      url: 'https://m.media-amazon.com/images/M/MV5BMTQ5MzkzNTIyN15BMl5BanBnXkFtZTYwNzUzOTA2._V1_UY1200_CR85,0,630,1200_AL_.jpg',
-    },
-    {
-      name: 'Dinesh Chugtai',
-      url: 'https://media.vanityfair.com/photos/620aa878b1aef5780ef1d04e/master/pass/1340176590',
-    },
-  ];
+  console.log('user should contain match' + JSON.stringify(user));
 
-  const [lastDirection, setLastDirection] = useState();
-
-  const swiped = (direction, nameToDelete) => {
-    console.log('removing: ' + nameToDelete);
+  const swiped = (direction, swipedUserId) => {
+    if (direction === 'right') {
+      updateMatches(swipedUserId);
+    }
     setLastDirection(direction);
   };
 
   const outOfFrame = (name) => {
     console.log(name + ' left the screen!');
   };
-
-  console.log('user' + JSON.stringify(user));
 
   return (
     <>
@@ -94,8 +84,8 @@ const Dashboard = () => {
               {genderedUsers?.map((gendered_user) => (
                 <TinderCard
                   className='swipe'
-                  key={gendered_user.first_name}
-                  onSwipe={(dir) => swiped(dir, gendered_user.first_name)}
+                  key={gendered_user.user_id}
+                  onSwipe={(dir) => swiped(dir, gendered_user.user_id)}
                   onCardLeftScreen={() => outOfFrame(gendered_user.first_name)}
                 >
                   <div
