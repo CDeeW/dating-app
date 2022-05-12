@@ -119,6 +119,34 @@ app.get('/user', async (req, res) => {
   }
 });
 
+app.get('/users', async (req, res) => {
+  const client = new MongoClient(uri);
+  const userIds = JSON.parse(req.query.userIds);
+  console.log('query' + JSON.stringify(req.query));
+  console.log('user Ids of match in backend: ' + userIds);
+
+  try {
+    await client.connect();
+    const database = client.db('app-data');
+    const users = database.collection('users');
+
+    const pipeline = [
+      {
+        $match: {
+          user_id: {
+            $in: userIds,
+          },
+        },
+      },
+    ];
+    const foundUsers = await users.aggregate(pipeline).toArray();
+    console.log(foundUsers);
+    res.send(foundUsers);
+  } finally {
+    await client.close();
+  }
+});
+
 app.get('/gendered-users', async (req, res) => {
   const client = new MongoClient(uri);
   const gender = req.query.gender;
@@ -191,7 +219,7 @@ app.put('/addmatch', async (req, res) => {
 
     // dont really get the updateDocument bit here
     const updateDocument = {
-      $push: { matches: { userId: matchedUserId } },
+      $push: { matches: { user_id: matchedUserId } },
     };
 
     const user = await users.updateOne(query, updateDocument);

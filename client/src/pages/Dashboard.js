@@ -61,7 +61,7 @@ const Dashboard = () => {
     }
   };
 
-  console.log('user should contain match' + JSON.stringify(user));
+  //console.log('user should contain match' + JSON.stringify(user));
 
   const swiped = (direction, swipedUserId) => {
     if (direction === 'right') {
@@ -74,6 +74,21 @@ const Dashboard = () => {
     console.log(name + ' left the screen!');
   };
 
+  const matchedUserIds = user?.matches
+    .map(({ user_id }) => user_id)
+    .concat(userId);
+
+  const filteredGenderUsers = genderedUsers?.filter(
+    (genderedUser) => !matchedUserIds.includes(genderedUser.user_id)
+  );
+
+  //console.log('matches: ' + JSON.stringify(user.matches));
+
+  //console.log('matches: ' + JSON.stringify(user.matches));
+  console.log('matchedUserIds: ' + JSON.stringify(matchedUserIds));
+
+  //console.log('filteredGenderUsers' + JSON.stringify(filteredGenderUsers));
+
   return (
     <>
       {user && genderedUsers && (
@@ -81,7 +96,7 @@ const Dashboard = () => {
           <ChatContainer user={user} />
           <div className='swiper-container'>
             <div className='card-container'>
-              {genderedUsers?.map((gendered_user) => (
+              {filteredGenderUsers?.map((gendered_user) => (
                 <TinderCard
                   className='swipe'
                   key={gendered_user.user_id}
