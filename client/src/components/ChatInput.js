@@ -7,7 +7,7 @@ const ChatInput = ({
   getUsersMessages,
   getClickedUsersMessages,
 }) => {
-  const [textArea, setTextArea] = useState(null);
+  const [textArea, setTextArea] = useState('');
   const userId = user?.user_id;
   const clickedUserId = clickedUser.user_id;
 
