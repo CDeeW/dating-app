@@ -6,7 +6,8 @@ const { v4: uuidv4 } = require('uuid');
 const jwt = require('jsonwebtoken');
 const cors = require('cors');
 const bcrypt = require('bcrypt');
-require('dotenv').config;
+require('dotenv').config();
+console.log('process:  ' + JSON.stringify(process.env.URI));
 
 const uri = process.env.URI;
 
@@ -57,6 +58,8 @@ app.post('/signup', async (req, res) => {
     res.status(201).json({ token, userId: generatedUserId });
   } catch (err) {
     console.log(err);
+  } finally {
+    await client.close();
   }
 });
 
@@ -76,13 +79,9 @@ app.post('/login', async (req, res) => {
       user.hashed_password
     );
 
-    console.log('user' + JSON.stringify(user));
-
     // she did email but i think it might have to be sanitizedEmail
 
-    console.log('correct password:' + correctPassword);
     if (user && correctPassword) {
-      console.log('log in success');
       const token = jwt.sign(user, email, {
         expiresIn: 60 * 24,
       });
@@ -98,13 +97,10 @@ app.post('/login', async (req, res) => {
 });
 
 app.get('/user', async (req, res) => {
-  console.log('backend get user');
   const client = new MongoClient(uri);
 
   // dont really know the difference between req.params and req.body
-  console.log('query:' + JSON.stringify(req.query));
   const userId = req.query.userId;
-  console.log('in backend: ' + userId);
 
   try {
     await client.connect();
@@ -149,8 +145,6 @@ app.get('/gendered-users', async (req, res) => {
   const client = new MongoClient(uri);
   const gender = req.query.gender;
 
-  console.log('gender: ' + gender);
-
   try {
     await client.connect();
     const database = client.db('app-data');
@@ -158,7 +152,6 @@ app.get('/gendered-users', async (req, res) => {
     const query = { gender_identity: gender };
 
     const foundUsers = await users.find(query).toArray();
-    console.log(foundUsers);
     res.json(foundUsers);
   } finally {
     await client.close();
@@ -221,7 +214,6 @@ app.put('/addmatch', async (req, res) => {
     };
 
     const user = await users.updateOne(query, updateDocument);
-    console.log('user updated one:' + user);
     res.send(user);
   } finally {
     await client.close();
