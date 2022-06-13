@@ -122,8 +122,6 @@ app.get('/user', async (req, res) => {
 app.get('/users', async (req, res) => {
   const client = new MongoClient(uri);
   const userIds = JSON.parse(req.query.userIds);
-  console.log('query' + JSON.stringify(req.query));
-  console.log('user Ids of match in backend: ' + userIds);
 
   try {
     await client.connect();
@@ -140,7 +138,7 @@ app.get('/users', async (req, res) => {
       },
     ];
     const foundUsers = await users.aggregate(pipeline).toArray();
-    console.log(foundUsers);
+
     res.send(foundUsers);
   } finally {
     await client.close();
@@ -243,9 +241,21 @@ app.get('/messages', async (req, res) => {
     // what is it before you convert it to an array
     const foundMessages = await messages.find(query).toArray();
     res.send(foundMessages);
-    console.log('found messages', foundMessages);
   } finally {
-    console.log('TRIED THO');
+    await client.close();
+  }
+});
+
+app.post('/message', async (req, res) => {
+  const client = new MongoClient(uri);
+  const message = req.body.message;
+  try {
+    await client.connect();
+    const database = client.db('app-data');
+    const messages = database.collection('messages');
+    const insertedMessage = await messages.insertOne(message);
+    res.send(insertedMessage);
+  } finally {
     await client.close();
   }
 });

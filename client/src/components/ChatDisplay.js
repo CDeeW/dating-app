@@ -3,6 +3,8 @@ import ChatInput from './ChatInput';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 
+// Error - when you go from Chat back to Matches and then back to the same Chat, the last message dissapears??
+
 const ChatDisplay = ({ user, clickedUser }) => {
   const userId = user?.user_id;
   const clickedUserId = clickedUser?.user_id;
@@ -67,7 +69,12 @@ const ChatDisplay = ({ user, clickedUser }) => {
   return (
     <>
       <Chat descendingOrderMessages={descendingOrderMessages} />
-      <ChatInput />
+      <ChatInput
+        user={user}
+        clickedUser={clickedUser}
+        getUsersMessages={getUsersMessages}
+        getClickedUsersMessages={getClickedUsersMessages}
+      />
     </>
   );
 };
